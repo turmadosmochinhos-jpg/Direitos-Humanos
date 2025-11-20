@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Quiz: Os Superpoderes dos Direitos Humanos</title>
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        :root {
+            --cor-primaria: #007BFF;
+            --cor-secundaria: #28a745;
+            --cor-erro: #dc3545;
+            --cor-fundo: #f0f2f5;
+            --cor-card: #ffffff;
+            --cor-texto: #333333;
+            --sombra-card: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Verdana', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--cor-card);
+            border-radius: 15px;
+            box-shadow: var(--sombra-card);
+            padding: 25px;
+            margin-bottom: 40px;
+            overflow: hidden; /* Previne scroll duplo */
+        }
+
+        /* --- CABEÇALHO --- */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            color: var(--cor-primaria);
+            font-size: 1.5em;
+            margin: 0 0 10px 0;
+        }
+
+        .progress-container {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #time-progress {
+            height: 100%;
+            width: 100%;
+            background-color: var(--cor-secundaria);
+            transition: width 1s linear;
+        }
+
+        #timer-display {
+            font-weight: bold;
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+
+        /* --- PERGUNTAS E OPÇÕES --- */
+        .question-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Estilo das Opções (Radio e Checkbox) */
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+            box-sizing: border-box; /* Garante que padding não aumenta largura */
+        }
+
+        .option-btn:hover {
+            background-color: #f8f9fa;
+            border-color: var(--cor-primaria);
+        }
+
+        .option-btn.selected {
+            background-color: #e6f2ff;
+            border-color: var(--cor-primaria);
+            color: var(--cor-primaria);
+            font-weight: bold;
+        }
+
+        /* Inputs de Texto */
+        .input-text {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .input-text:focus {
+            border-color: var(--cor-primaria);
+            outline: none;
+        }
+
+        /* Ranking (Ordenação) */
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .ranking-controls button {
+            background: var(--cor-primaria);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .ranking-controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Correspondência (Matching) */
+        .matching-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .matching-row label { margin-bottom: 5px; font-weight: bold; }
+        .matching-row select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        /* --- BOTÃO DE NAVEGAÇÃO --- */
+        .nav-area {
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .btn-action {
+            background-color: var(--cor-primaria);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-action:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+        .btn-finish {
+            background-color: var(--cor-secundaria);
+        }
+
+        /* --- TELA DE RESULTADOS --- */
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: #e8f5e9;
+            border: 2px solid var(--cor-secundaria);
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .score-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+            display: block;
+        }
+
+        .feedback-block {
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #ccc;
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .feedback-block.correct { border-left-color: var(--cor-secundaria); }
+        .feedback-block.incorrect { border-left-color: var(--cor-erro); }
+        
+        .status-badge {
+            float: right;
+            font-size: 1.5em;
+        }
+
+        .user-response { font-weight: bold; color: #333; }
+        .correct-response { color: var(--cor-secundaria); font-weight: bold; display: block; margin-top: 5px; }
+        .explanation { font-style: italic; color: #555; margin-top: 10px; font-size: 0.9em; border-top: 1px dashed #eee; padding-top: 5px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🌍 Quiz: Direitos Humanos</h1>
+        <div id="timer-display">Tempo: 10:00</div>
+        <div class="progress-container"><div id="time-progress"></div></div>
+    </div>
+
+    <div id="start-screen" style="text-align: center; padding: 20px;">
+        <h2>Bem-vindo!</h2>
+        <p>Tens 20 perguntas para testar os teus conhecimentos sobre a Declaração Universal dos Direitos Humanos.</p>
+        <p><strong>4.º Ano | 20 Perguntas | 5 Pontos cada</strong></p>
+        <br>
+        <p style="font-size: 0.9em; color: #666;">(As perguntas e opções serão baralhadas a cada tentativa!)</p>
+        <br>
+        <button type="button" class="btn-action" onclick="initQuiz()">Começar Agora 🚀</button>
+    </div>
+
+    <div id="quiz-screen" style="display: none;">
+        <div style="text-align: right; font-size: 0.9em; color: #888; margin-bottom: 10px;">
+            Pergunta <span id="q-current">1</span> de <span id="q-total">20</span>
+        </div>
+        <div id="question-render-area">
+            </div>
+        <div class="nav-area">
+            <button type="button" id="btn-next" class="btn-action" onclick="nextQuestion()">Próxima ➡️</button>
+        </div>
+    </div>
+
+    <div id="results-screen" style="display: none;">
+        </div>
+</div>
+
+<script>
+    /* --- BANCO DE DADOS ORIGINAL (IMUTÁVEL) --- */
+    const originalDbQuestions = [
+        {
+            type: "radio",
+            question: "Quem tem Direitos Humanos? (Artigo 1.º)",
+            options: ["Só os adultos e os chefes de Estado.", "Só quem vive em países ricos.", "**Todas as pessoas do mundo, desde que nascem.**", "Só os políticos."],
+            answer: "**Todas as pessoas do mundo, desde que nascem.**",
+            explanation: "Os Direitos Humanos são universais. Todos nascem livres e iguais.",
+            points: 5
+        },
+        {
+            type: "short",
+            question: "Qual é a sigla da Organização das Nações Unidas? (3 letras)",
+            answer: "ONU",
+            explanation: "A ONU (Organização das Nações Unidas) criou a Declaração em 1948.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "O direito de ires à escola e aprenderes coisas novas chama-se... (Artigo 26.º)",
+            options: ["Direito ao Lazer.", "Direito à Saúde.", "**Direito à Educação.**", "Direito à Família."],
+            answer: "**Direito à Educação.**",
+            explanation: "O Direito à Educação deve ser gratuito e para todos.",
+            points: 5
+        },
+        {
+            type: "short",
+            question: "A Declaração Universal dos Direitos Humanos foi proclamada no ano de...",
+            answer: "1948",
+            explanation: "Foi criada em 1948, logo a seguir à Segunda Guerra Mundial.",
+            points: 5
+        },
+        {
+            type: "checkbox",
+            question: "Quais destes são direitos que te protegem na tua vida em casa e na rua? (Escolhe 2 respostas)",
+            options: ["Direito de voar como um pássaro.", "**Direito a ter comida e uma casa segura.**", "**Direito de me expressar (falar) livremente.**", "Direito de ser invisível."],
+            answer: ["**Direito a ter comida e uma casa segura.**", "**Direito de me expressar (falar) livremente.**"],
+            explanation: "Alimentação, habitação e liberdade de expressão são fundamentais.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "O que garante o Artigo 3.º da DUDH?",
+            options: ["Direito a ter um carro.", "**Direito à Vida, à Liberdade e à Segurança Pessoal.**", "Direito a férias eternas.", "Direito a comer doces todos os dias."],
+            answer: "**Direito à Vida, à Liberdade e à Segurança Pessoal.**",
+            explanation: "O direito à vida e à segurança pessoal é o mais básico de todos.",
+            points: 5
+        },
+        {
+            type: "ranking",
+            question: "Ordena estes 3 direitos pelo grau de importância para viveres na escola (1.º mais importante, 3.º menos importante para a escola). Usa as setas:",
+            items: ["Direito ao Lazer (brincar)", "Direito a comer doces", "Direito à Educação"],
+            answer: ["Direito à Educação", "Direito ao Lazer (brincar)", "Direito a comer doces"],
+            explanation: "Na escola, a prioridade é a Educação, seguida do Lazer saudável.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "Segundo a DUDH, podemos tratar as pessoas de maneira diferente por causa da cor da sua pele ou religião?",
+            options: ["Sim, se o seu país for pequeno.", "**Não, todos são iguais perante a lei (Artigo 7.º).**", "Sim, se o professor concordar.", "Depende do dia da semana."],
+            answer: "**Não, todos são iguais perante a lei (Artigo 7.º).**",
+            explanation: "O Artigo 7.º diz que todos somos iguais perante a lei, sem discriminação.",
+            points: 5
+        },
+        {
+            type: "matching",
+            question: "Liga o Direito ao seu significado:",
+            pairs: {"Direito ao Lazer": "Ter tempo para brincar e descansar.", "Direito à Saúde": "Receber tratamento médico quando se está doente.", "Direito de Opinião": "Dizer o que se pensa (com respeito)."},
+            explanation: "Cada direito protege uma parte importante da nossa vida.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "Ter Direitos significa que só podemos receber coisas? (Artigo 29.º)",
+            options: ["Sim, só temos direitos.", "**Não, também temos deveres e responsabilidades para com a nossa comunidade.**", "Sim, os direitos são ilimitados.", "Só temos deveres."],
+            answer: "**Não, também temos deveres e responsabilidades para com a nossa comunidade.**",
+            explanation: "Se temos o direito à educação, temos o dever de estudar e respeitar os professores. Direitos vêm com responsabilidades!",
+            points: 5
+        },
+        {
+            type: "gap",
+            question: "A DUDH diz que ninguém pode ser mantido em _______________ ou em escravatura. (Artigo 4.º)",
+            answer: "servidão",
+            explanation: "A escravatura e a servidão (ser forçado a trabalhar para outra pessoa sem liberdade) são proibidas e consideradas crimes contra a humanidade.",
+            points: 5
+        },
+        {
+            type: "short",
+            question: "O Secretário-Geral da ONU, António Guterres, ajudou muitas pessoas que fugiam das suas casas como Alto Comissário. Que nome damos a estas pessoas que fogem do perigo?",
+            answer: "Refugiados",
+            explanation: "António Guterres foi Alto Comissário da ONU para os Refugiados (ACNUR), que são pessoas que tiveram de sair do seu país por causa de guerra, violência ou perseguição.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "Quantos artigos (regras) principais tem a Declaração Universal dos Direitos Humanos?",
+            options: ["10 artigos", "**30 artigos**", "50 artigos", "100 artigos"],
+            answer: "**30 artigos**",
+            explanation: "A Declaração tem um total de 30 artigos que cobrem os direitos civis, políticos, sociais, económicos e culturais.",
+            points: 5
+        },
+        {
+            type: "checkbox",
+            question: "A Liberdade de Pensamento (Art. 18.º) permite-te: (Escolhe 2 respostas)",
+            options: ["**Ter a tua própria religião ou fé (ou não ter nenhuma).**", "**Mudar de ideias sobre as coisas.**", "Obrigar os outros a pensar como tu.", "Voar até à Lua."],
+            answer: ["**Ter a tua própria religião ou fé (ou não ter nenhuma).**", "**Mudar de ideias sobre as coisas.**"],
+            explanation: "A liberdade de pensamento protege a tua mente e a tua consciência. Ninguém te pode forçar a acreditar em algo que não queres.",
+            points: 5
+        },
+        {
+            type: "gap",
+            question: "Todos temos o direito de ser ouvidos de forma justa e _______________ por um tribunal, se formos acusados de algo. (Artigo 10.º)",
+            answer: "pública",
+            explanation: "O direito a um julgamento justo e público é uma regra para garantir que a justiça é feita de forma correta e transparente para todos.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "O que significa o Artigo 23.º sobre o trabalho?",
+            options: ["Toda a gente é obrigada a trabalhar na mesma fábrica.", "**O direito de escolher livremente o trabalho e ser pago de forma justa.**", "Só os homens podem trabalhar.", "Só se pode trabalhar a partir dos 30 anos."],
+            answer: "**O direito de escolher livremente o trabalho e ser pago de forma justa.**",
+            explanation: "Quando fores adulto, podes escolher a tua profissão e o teu salário deve ser o mesmo que o de outra pessoa que faça o mesmo trabalho, sem discriminação.",
+            points: 5
+        },
+        {
+            type: "matching",
+            question: "Liga a figura ao cargo que ocupa/ocupou:",
+            pairs: {"Eleanor Roosevelt": "Presidente da Comissão que redigiu a DUDH.", "António Guterres": "Secretário-Geral da ONU.", "Tu": "Cidadão"},
+            explanation: "Eleanor Roosevelt liderou a comissão da DUDH. António Guterres é o atual líder da ONU. E tu és um cidadão do mundo!",
+            points: 5
+        },
+        {
+            type: "checkbox",
+            question: "O que garante o Direito à Família? (Escolhe 2 respostas)",
+            options: ["**Poder casar e formar família.**", "**A proteção da sociedade e do Estado à família.**", "Viver sozinho sempre.", "Não poder sair de casa nunca mais."],
+            answer: ["**Poder casar e formar família.**", "**A proteção da sociedade e do Estado à família.**"],
+            explanation: "A família é o núcleo fundamental da sociedade e deve ser protegida por lei. As pessoas adultas devem ser livres de se casar e formar a sua família.",
+            points: 5
+        },
+        {
+            type: "short",
+            question: "Os Direitos Humanos são o melhor critério para resolver ___________, pois garantem justiça e respeito. (Uma palavra no plural)",
+            answer: "conflitos",
+            explanation: "Como vimos, os Direitos Humanos dão as regras para resolver conflitos, garantindo que ninguém perde os seus direitos essenciais.",
+            points: 5
+        },
+        {
+            type: "radio",
+            question: "A DUDH é válida onde?",
+            options: ["Só na Europa.", "**É válida em todo o lado e para todas as pessoas, sempre.**", "Só na escola.", "Na Lua."],
+            answer: "**É válida em todo o lado e para todas as pessoas, sempre.**",
+            explanation: "A Declaração é Universal, o que significa que se aplica a todos, em todos os momentos e em todos os lugares. É uma lei mundial de respeito!",
+            points: 5
+        }
+    ];
+
+    /* --- ESTADO DO JOGO --- */
+    let dbQuestions = []; // Vai receber as perguntas baralhadas
+    let currentIndex = 0;
+    let userAnswers = [];
+    let timerInterval;
+    let timeRemaining = 600; // 10 minutos
+
+    /* --- FUNÇÃO DE SHUFFLE (BARALHAR) --- */
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    /* --- INICIALIZAÇÃO --- */
+    function initQuiz() {
+        // 1. Cria uma cópia profunda (Deep Copy) das perguntas originais para não afetar o banco original
+        dbQuestions = JSON.parse(JSON.stringify(originalDbQuestions));
+        
+        // 2. Baralha a ordem das perguntas
+        shuffleArray(dbQuestions);
+
+        // 3. Baralha as opções dentro de cada pergunta
+        dbQuestions.forEach(q => {
+            if (q.type === 'radio' || q.type === 'checkbox') {
+                shuffleArray(q.options);
+            }
+            // Nas de ranking, baralhamos os items para o utilizador ordenar
+            if (q.type === 'ranking') {
+                shuffleArray(q.items);
+            }
+        });
+
+        // Inicializa array de respostas
+        userAnswers = new Array(dbQuestions.length).fill(null);
+        
+        // Reset do UI
+        currentIndex = 0;
+        timeRemaining = 600;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('q-total').innerText = dbQuestions.length;
+        
+        renderQuestion();
+        startTimer();
+    }
+
+    /* --- RENDERIZAÇÃO DA PERGUNTA --- */
+    function renderQuestion() {
+        const q = dbQuestions[currentIndex];
+        const area = document.getElementById('question-render-area');
+        document.getElementById('q-current').innerText = currentIndex + 1;
+        
+        area.innerHTML = ''; // Limpa área anterior
+        
+        // Título
+        const title = document.createElement('h3');
+        title.className = 'question-text';
+        title.innerText = `${currentIndex + 1}. ${q.question.replace('_______________', '______')}`;
+        area.appendChild(title);
+
+        // Opções baseadas no tipo
+        const savedAns = userAnswers[currentIndex];
+
+        if (q.type === 'radio') {
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                if (savedAns && savedAns[0] === opt) btn.classList.add('selected');
+                btn.innerText = cleanText(opt);
+                btn.onclick = () => {
+                    // Limpa seleção visual
+                    Array.from(area.querySelectorAll('.option-btn')).forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    userAnswers[currentIndex] = [opt];
+                };
+                area.appendChild(btn);
+            });
+        } 
+        else if (q.type === 'checkbox') {
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                // Verifica se já estava selecionado
+                if (savedAns && savedAns.includes(opt)) btn.classList.add('selected');
+                btn.innerText = cleanText(opt);
+                btn.onclick = () => {
+                    btn.classList.toggle('selected');
+                    // Reconstrói array de respostas
+                    const allSelected = Array.from(area.querySelectorAll('.selected')).map(b => {
+                        // Encontra a opção original correspondente ao texto do botão
+                        return q.options.find(o => cleanText(o) === b.innerText);
+                    });
+                    userAnswers[currentIndex] = allSelected;
+                };
+                area.appendChild(btn);
+            });
+        }
+        else if (q.type === 'short' || q.type === 'gap') {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-text';
+            input.placeholder = 'Escreve a tua resposta...';
+            if (savedAns) input.value = savedAns[0];
+            input.oninput = (e) => userAnswers[currentIndex] = [e.target.value];
+            area.appendChild(input);
+        }
+        else if (q.type === 'ranking') {
+            // Se já respondeu, usa a ordem guardada. Se não, usa os items (que já foram baralhados no initQuiz)
+            let currentOrder = savedAns ? [...savedAns] : [...q.items];
+            // Garante que guardamos a ordem inicial se for a primeira vez
+            if (!savedAns) userAnswers[currentIndex] = [...currentOrder];
+
+            const listContainer = document.createElement('div');
+            listContainer.id = 'ranking-list';
+
+            const renderList = () => {
+                listContainer.innerHTML = '';
+                currentOrder.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'ranking-item';
+                    row.innerHTML = `<span>${item}</span>`;
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'ranking-controls';
+                    
+                    const upBtn = document.createElement('button');
+                    upBtn.type = 'button';
+                    upBtn.innerText = '⬆️';
+                    upBtn.disabled = idx === 0;
+                    upBtn.onclick = () => {
+                        // Troca com o anterior
+                        [currentOrder[idx - 1], currentOrder[idx]] = [currentOrder[idx], currentOrder[idx - 1]];
+                        userAnswers[currentIndex] = currentOrder;
+                        renderList();
+                    };
+
+                    const downBtn = document.createElement('button');
+                    downBtn.type = 'button';
+                    downBtn.innerText = '⬇️';
+                    downBtn.disabled = idx === currentOrder.length - 1;
+                    downBtn.onclick = () => {
+                        // Troca com o próximo
+                        [currentOrder[idx + 1], currentOrder[idx]] = [currentOrder[idx], currentOrder[idx + 1]];
+                        userAnswers[currentIndex] = currentOrder;
+                        renderList();
+                    };
+
+                    controls.appendChild(upBtn);
+                    controls.appendChild(downBtn);
+                    row.appendChild(controls);
+                    listContainer.appendChild(row);
+                });
+            };
+            renderList();
+            area.appendChild(listContainer);
+        }
+        else if (q.type === 'matching') {
+            const keys = Object.keys(q.pairs);
+            // Os valores são baralhados aqui na hora de renderizar para criar o desafio
+            // Nota: A função de shuffleArray não é usada aqui para preservar a lógica original de Object.values
+            const values = Object.values(q.pairs).sort(() => Math.random() - 0.5); 
+            
+            // Inicializa objeto se vazio
+            if (!userAnswers[currentIndex]) userAnswers[currentIndex] = [{}];
+            const currentPairAns = userAnswers[currentIndex][0];
+
+            keys.forEach((key, i) => {
+                const row = document.createElement('div');
+                row.className = 'matching-row';
+                
+                const label = document.createElement('label');
+                label.innerText = key + ' corresponde a:';
+                
+                const select = document.createElement('select');
+                select.innerHTML = '<option value="">-- Seleciona --</option>';
+                values.forEach(val => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.innerText = val;
+                    if (currentPairAns[key] === val) opt.selected = true;
+                    select.appendChild(opt);
+                });
+
+                select.onchange = (e) => {
+                    userAnswers[currentIndex][0][key] = e.target.value;
+                };
+
+                row.appendChild(label);
+                row.appendChild(select);
+                area.appendChild(row);
+            });
+        }
+
+        // Atualiza botão
+        const btnNext = document.getElementById('btn-next');
+        if (currentIndex === dbQuestions.length - 1) {
+            btnNext.innerText = "Terminar e Ver Notas 🏆";
+            btnNext.classList.add('btn-finish');
+        } else {
+            btnNext.innerText = "Próxima ➡️";
+            btnNext.classList.remove('btn-finish');
+        }
+    }
+
+    /* --- NAVEGAÇÃO --- */
+    function nextQuestion() {
+        if (currentIndex < dbQuestions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            calculateAndShowResults();
+        }
+    }
+
+    /* --- UTILITÁRIOS --- */
+    function cleanText(txt) {
+        return txt.replace(/\*\*/g, '');
+    }
+
+    function normalize(val) {
+        if (typeof val === 'string') return val.trim().toLowerCase().replace(/\*\*/g, '');
+        return val;
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval); // Limpa intervalo anterior se existir
+        const display = document.getElementById('timer-display');
+        const progress = document.getElementById('time-progress');
+        const totalTime = 600;
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            
+            const m = Math.floor(timeRemaining / 60);
+            const s = timeRemaining % 60;
+            display.innerText = `Tempo: ${m}:${s < 10 ? '0'+s : s}`;
+            
+            progress.style.width = (timeRemaining / totalTime * 100) + '%';
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                calculateAndShowResults();
+            }
+        }, 1000);
+    }
+
+    /* --- CÁLCULO DE RESULTADOS (CRÍTICO) --- */
+    function calculateAndShowResults() {
+        clearInterval(timerInterval); // Para o tempo
+        document.getElementById('quiz-screen').style.display = 'none';
+        
+        let score = 0;
+        let feedbackHTML = '';
+
+        // Itera sobre TODAS as perguntas (mesmo as não respondidas)
+        for (let i = 0; i < dbQuestions.length; i++) {
+            const q = dbQuestions[i];
+            const uAns = userAnswers[i]; // Pode ser null
+            let isCorrect = false;
+
+            // Lógica de Validação
+            try {
+                if (uAns) {
+                    // 1. Radio, Short, Gap
+                    if (['radio', 'short', 'gap'].includes(q.type)) {
+                        if (normalize(uAns[0]) === normalize(q.answer)) isCorrect = true;
+                    }
+                    // 2. Checkbox
+                    else if (q.type === 'checkbox') {
+                        // Compara arrays ordenados de strings normalizadas
+                        const uStr = uAns.map(normalize).sort().join('|');
+                        const aStr = q.answer.map(normalize).sort().join('|');
+                        if (uStr === aStr && uStr.length > 0) isCorrect = true;
+                    }
+                    // 3. Ranking
+                    else if (q.type === 'ranking') {
+                        // Arrays têm de ser iguais na ordem
+                        if (JSON.stringify(uAns) === JSON.stringify(q.answer)) isCorrect = true;
+                    }
+                    // 4. Matching
+                    else if (q.type === 'matching') {
+                        let allMatch = true;
+                        const uObj = uAns[0];
+                        // Verifica se todas as chaves batem certo
+                        for (let key in q.pairs) {
+                            if (uObj[key] !== q.pairs[key]) allMatch = false;
+                        }
+                        // Verifica se respondeu a tudo
+                        if (Object.keys(uObj).length < Object.keys(q.pairs).length) allMatch = false;
+                        
+                        if (allMatch) isCorrect = true;
+                    }
+                }
+            } catch (e) {
+                console.error("Erro a validar pergunta " + i, e);
+                isCorrect = false;
+            }
+
+            if (isCorrect) score += q.points;
+
+            // Preparar Texto para Exibição
+            let userDisplay = "Sem resposta";
+            if (uAns) {
+                if (q.type === 'matching') {
+                    userDisplay = Object.entries(uAns[0])
+                        .filter(([k,v]) => v !== "")
+                        .map(([k,v]) => `${k} ➔ ${v}`).join(' | ');
+                } else if (q.type === 'ranking') {
+                    userDisplay = uAns.join(' ➔ ');
+                } else {
+                    // Filtra itens vazios e junta
+                    userDisplay = uAns.map(cleanText).filter(x => x).join(', ');
+                }
+            }
+            if (userDisplay === "") userDisplay = "Sem resposta";
+
+            let correctDisplay = "";
+            if (q.type === 'matching') correctDisplay = Object.entries(q.pairs).map(([k,v]) => `${k} ➔ ${v}`).join(' | ');
+            else if (q.type === 'ranking') correctDisplay = q.answer.join(' ➔ ');
+            else if (Array.isArray(q.answer)) correctDisplay = q.answer.map(cleanText).join(', ');
+            else correctDisplay = cleanText(q.answer);
+
+            // HTML do bloco de feedback
+            feedbackHTML += `
+                <div class="feedback-block ${isCorrect ? 'correct' : 'incorrect'}">
+                    <span class="status-badge">${isCorrect ? '✅' : '❌'}</span>
+                    <p><strong>${i + 1}. ${q.question.replace('_______________', '...')}</strong></p>
+                    
+                    <p>A tua resposta: <span class="user-response" style="color: ${isCorrect ? 'green' : 'red'}">${userDisplay}</span></p>
+                    
+                    ${!isCorrect ? `<span class="correct-response">Resposta Certa: ${correctDisplay}</span>` : ''}
+                    
+                    <div class="explanation">💡 ${q.explanation}</div>
+                </div>
+            `;
+        }
+
+        // Injetar no DOM
+        const resultsScreen = document.getElementById('results-screen');
+        resultsScreen.innerHTML = `
+            <div class="score-card">
+                <h2>Quiz Terminado!</h2>
+                <p>Pontuação Final:</p>
+                <span class="score-number">${score} / ${dbQuestions.length * 5}</span>
+            </div>
+            <h3>Revisão Detalhada:</h3>
+            ${feedbackHTML}
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="button" class="btn-action" onclick="initQuiz()">Tentar Novamente 🔄</button>
+            </div>
+        `;
+        
+        resultsScreen.style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+</script>
+
+</body>
+</html>
